@@ -86,6 +86,8 @@ jobs:
           q -uroot -pRootPassw0rd123 -e 'SELECT CURRENT_USER(), @@innodb_buffer_pool_size, @@performance_schema, @@port;'
           if q -uroot -pwrongwrongwrong -e 'SELECT 1' 2>/dev/null; then echo 'wrong password accepted'; exit 1; fi
           if q -uapp -pAppPassw0rd456 mysql -e 'SELECT 1' 2>/dev/null; then echo 'app user reached mysql schema'; exit 1; fi
+          # The first-start init file carries passwords; it must not linger.
+          for i in $(seq 1 15); do docker exec ci test -e /tmp/renode-init.sql || break; sleep 1; done
           docker exec ci test ! -e /tmp/renode-init.sql
           stop ci
           docker rm ci

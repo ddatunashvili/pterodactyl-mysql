@@ -2,8 +2,9 @@
 cd /home/container || exit 1
 
 DATADIR=/home/container/mysql
-SOCKET=/tmp/mysqld.sock
-PIDFILE=/tmp/mysqld.pid
+RUNDIR=/tmp/mysqld
+SOCKET=${RUNDIR}/mysqld.sock
+PIDFILE=${RUNDIR}/mysqld.pid
 CNF=/tmp/renode.cnf
 INIT=/tmp/renode-init.sql
 PORT="${SERVER_PORT:-3306}"
@@ -59,6 +60,7 @@ PERF=OFF
     [ -f /home/container/my.cnf ] && echo "!include /home/container/my.cnf"
 } > "$CNF"
 
+mkdir -p -m 700 "$RUNDIR"
 umask 077
 : > "$INIT"
 
