@@ -54,6 +54,8 @@ PERF=OFF
     echo "performance_schema=${PERF}"
     echo "max_connections=$([ "$MB" -le 1024 ] && echo 60 || echo 151)"
     echo "log-error-verbosity=2"
+    # Statements run once as the server starts, before it takes connections.
+    echo "init-file=${INIT}"
     echo "[client]"
     echo "socket=${SOCKET}"
     # Anything the owner wants on top, in their own file.
@@ -98,13 +100,12 @@ umask 022
 # Pterodactyl startup: {{VAR}} -> ${VAR}, run as a script (the panel may prefix
 # it with a console banner, which `eval echo` would execute and swallow).
 MODIFIED_STARTUP=$(printf '%s' "${STARTUP:-mysqld --defaults-file=${CNF}}" | sed -e 's/{{/${/g' -e 's/}}/}/g')
-echo ":/home/container$ ${MODIFIED_STARTUP} --init-file=${INIT}"
+echo ":/home/container$ ${MODIFIED_STARTUP}"
 
-export RENODE_INIT_FILE="$INIT"
 if command -v setsid >/dev/null 2>&1; then
-    setsid bash -c "${MODIFIED_STARTUP} --init-file=${INIT}" </dev/null &
+    setsid bash -c "${MODIFIED_STARTUP}" </dev/null &
 else
-    bash -c "${MODIFIED_STARTUP} --init-file=${INIT}" </dev/null &
+    bash -c "${MODIFIED_STARTUP}" </dev/null &
 fi
 PID=$!
 
